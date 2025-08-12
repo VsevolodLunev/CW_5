@@ -15,8 +15,8 @@ class AssociatedWithoutRewardValidator:
     def __call__(self, habit):
         if habit.get("associted_habit") and habit.get("reward"):
             raise ValidationError(
-                f"В модели не должно быть заполнено одновременно и поле вознаграждения,"
-                f"и поле связанной привычки. Можно заполнить только одно из двух полей."
+                "В модели не должно быть заполнено одновременно и поле вознаграждения,"
+                "и поле связанной привычки. Можно заполнить только одно из двух полей."
             )
 
 
@@ -48,7 +48,7 @@ class NiceHabitInAssociatedValidator:
         if habit.get("associted_habit"):
             if not habit.get("nice_habit"):
                 raise ValidationError(
-                    f"В связанные привычки могут попадать только привычки с признаком приятной привычки."
+                    "В связанные привычки могут попадать только привычки с признаком приятной привычки."
                 )
 
 
@@ -82,5 +82,5 @@ class PeriodicityValidator:
         periodicity = habit.get("periodicity")
         if 7 < periodicity or periodicity < 1:
             raise ValidationError(
-                f"За одну неделю необходимо выполнить привычку хотя бы один раз."
+                "За одну неделю необходимо выполнить привычку хотя бы один раз."
             )
