@@ -1,4 +1,5 @@
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import generics
 from rest_framework.viewsets import ModelViewSet
 
 from habits.models import Habit
@@ -14,8 +15,13 @@ class HabitViewSet(ModelViewSet):
     serializer_class = HabitSerializer
     pagination_class = HabitPaginator
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(user=self.request.user)
+        return queryset
 
     def perform_create(self, serializer):
         habit = serializer.save()
@@ -24,10 +30,24 @@ class HabitViewSet(ModelViewSet):
 
     def get_permissions(self):
         if self.action == "create":
-            self.permission_classes = (~IsModer,)
+            self.permission_classes = (~IsModer, IsAuthenticated)
         elif self.action in ["update", "retrieve"]:
             self.permission_classes = (IsModer | IsOwner,)
         elif self.action == "destroy":
             self.permission_classes = (~IsModer | IsOwner,)
 
         return super().get_permissions()
+
+
+class HabitPublishedListAPIView(generics.ListAPIView):
+    """Вывод опубликованных привычек"""
+
+    queryset = Habit.objects.all()
+    serializer_class = HabitSerializer
+    permission_classes = [AllowAny,]
+    pagination_class = HabitPaginator
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(is_published=True)
+        return queryset
