@@ -13,11 +13,11 @@
 Признак публичности — привычки можно публиковать в общий доступ, чтобы другие пользователи могли брать в пример чужие привычки.
 
 Установка
-клонировать репозиторий [Github] #1
+клонировать репозиторий [[Github](https://github.com/VsevolodLunev/CW_5/tree/feature1)] #1
 
 Docker в проекте
 
-Для быстрого старта:
+Для быстрого старта:    
 
 Скачайте проект с удаленного репозитория
 
@@ -34,8 +34,7 @@ Access to the repository on GitHub.
 System update:
 sudo apt update
 sudo apt upgrade
-3. 
-Installing docker and docker-compose:
+3. Installing docker and docker-compose:
 sudo apt update && sudo apt install -y docker.io docker-compose
 sudo systemctl enable docker
 sudo usermod -aG docker $USER && newgrp docker
