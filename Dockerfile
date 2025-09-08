@@ -22,15 +22,11 @@ ENV PATH="/root/.local/bin:$PATH"
 COPY pyproject.toml poetry.lock ./
 
 # Устанавливаем зависимости Python с помощью Poetry
+RUN poetry config virtualenvs.create false
 RUN poetry install --no-root
 
 # Копируем исходный код приложения в контейнер
 COPY . .
-
-# Определяем переменные окружения
-ENV SECRET_KEY="SECRET_KEY"
-ENV CELERY_BROKER_URL="CELERY_BROKER_URL"
-ENV CELERY_BACKEND="CELERY_RESULT_BACKEND"
 
 # Создаем директорию для медиафайлов
 RUN mkdir -p /app/media
