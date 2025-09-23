@@ -1,0 +1,15 @@
+venv/
+.git/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+
+**
+!config
+!habits
+!users
+!manage.py
+!poetry.lock
+!pyproject.toml
