@@ -1,9 +1,9 @@
-from django.test import TestCase
-from rest_framework import status
+# from django.test import TestCase
+# from rest_framework import status
 from rest_framework.test import APITestCase
 
-from habits.models import Habit
-from users.models import User
+# from habits.models import Habit
+# from users.models import User
 
 
 class HabitTestCase(APITestCase):
