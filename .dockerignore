@@ -1,0 +1,16 @@
+venv/
+.git/
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+test_db.sqlite3
+.gitignore
+
+!config
+!habits
+!users
+!manage.py
+!poetry.lock
+!pyproject.toml
