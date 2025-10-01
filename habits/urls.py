@@ -13,7 +13,7 @@ router.register(r"", HabitViewSet)
 
 urlpatterns = [
     path("published/", HabitPublishedListAPIView.as_view(), name="published"),
-              ] + router.urls
+] + router.urls
 
 
 if settings.DEBUG:

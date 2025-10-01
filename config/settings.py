@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
-from django.conf import settings
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -202,6 +202,14 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 
 
-#  TELEGRAM_URL = "https://api.telegram.org/bot"
-TELEGRAM_URL = "https://core.telegram.org/bots/api"
+TELEGRAM_URL = "https://api.telegram.org/bot"
+#  TELEGRAM_URL = "https://core.telegram.org/bots/api"
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+if "test" in sys.argv:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "test_db.sqlite3",
+        }
+    }
