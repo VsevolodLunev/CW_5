@@ -77,7 +77,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           SSH: true
-          GITHUB_TOKEN: ${{ secrets.SSH_KEY }}
+          ssh-privat-key: ${{ secrets.SSH_KEY }}
 
       - name: Deploy to server
         run: |
