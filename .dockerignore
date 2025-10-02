@@ -1,3 +1,11 @@
+!config
+!habits
+!users
+!manage.py
+!poetry.lock
+!pyproject.toml
+
+
 venv/
 .git/
 __pycache__
@@ -7,10 +15,3 @@ __pycache__
 .env
 test_db.sqlite3
 .gitignore
-
-!config
-!habits
-!users
-!manage.py
-!poetry.lock
-!pyproject.toml

@@ -180,3 +180,7 @@ cython_debug/
 /.venv/
 /venv/
 venv
+
+static
+static/
+/static
