@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   workflow_run:
-    workflows: [ cy.yml ]
+    workflows: [ Django CI ]
     types: [ completed ]
     branches: [ develop, main]
 
