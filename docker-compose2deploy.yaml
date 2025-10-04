@@ -1,0 +1,79 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: vsevolodlunev
+      POSTGRES_USER: vsevolodlunev
+      POSTGRES_PASSWORD: 4455
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vsevolodlunev -d vsevolodlunev"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    depends_on:
+      - db
+    env_file: ".env"
+    ports:
+      - "5050:80"
+
+  redis:
+    image: redis:6.2.4-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    image: backend-1
+    command: bash -c "python3 manage.py migrate && gunicorn config.wsgi --access-logfile - --error-logfile -  --reload -b 0.0.0.0:8000"
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  static_collector:
+    build: .
+    command: bash -c 'python3 manage.py collectstatic --no-input'
+    env_file: .env
+    volumes:
+      - django_static:/app/static/
+
+  web:
+    image: nginx:1.19.3
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_started
+      static_collector:
+        condition: service_completed_successfully
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d/
+      - django_static:/usr/share/nginx/html/static/
+
+  celery-worker:
+      image:
+      env_file: .env
+      depends_on:
+        db:
+          condition: service_healthy
+      command: celery -A config worker -l INFO
+
+
+volumes:
+  pg_data:
+  django_static:
