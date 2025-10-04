@@ -2,19 +2,19 @@ version: '4'
 
 services:
   db:
-    image: postgres:13
+    image: postgres:14
     environment:
       POSTGRES_HOST: db
-      POSTGRES_DB: vsevolodlunev
+      POSTGRES_DB: template1
       POSTGRES_USER: vsevolodlunev
       POSTGRES_PASSWORD: 4455
     ports:
-      - "5435:5432"
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      - "5432:5432"
+    # volumes:
+    #   - pg_data:/var/lib/postgresql/data
+    #   - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vsevolodlunev -d vsevolodlunev"]
+      test: ["CMD-SHELL", "pg_isready -U vsevolodlunev -d template1"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -45,7 +45,7 @@ services:
     env_file: .env
     environment:
       POSTGRES_HOST: db
-      REDIS_URL: "redis://redis:6379"
+      REDIS_URL: "redis://redis:6379/0"
     depends_on:
       db:
         condition: service_healthy
@@ -79,8 +79,8 @@ services:
       env_file: .env
       environment:
         POSTGRES_HOST: db
-        POSTGRES_PORT: 5435
-        REDIS_URL: "redis://redis:6379"
+        POSTGRES_PORT: 5432
+        REDIS_URL: "redis://redis:6379/0"
         REDIS_PORT: 6379
       depends_on:
         db:

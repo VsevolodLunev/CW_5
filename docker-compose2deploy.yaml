@@ -5,7 +5,7 @@ services:
     image: postgres:13
     environment:
       POSTGRES_HOST: db
-      POSTGRES_DB: vsevolodlunev
+      POSTGRES_DB: template1
       POSTGRES_USER: vsevolodlunev
       POSTGRES_PASSWORD: 4455
     volumes:

@@ -5,7 +5,7 @@ on:
   workflow_run:
     workflows: [ Test ]
     types: [ completed ]
-    branches: [ main ]
+    branches: [ feature3 ]
 
 jobs:
 
@@ -28,8 +28,8 @@ jobs:
             type=ref.event=branch
             type=ref.event=pr
             type=semver,pattern={{version}}
-            type=semver,pattern={{majopr}}.{{majopr}}
-            type=semver,pattern={{majopr}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
             type=sha
       - uses: docker/setup-buildx-action@v2
       - name: Build and push
