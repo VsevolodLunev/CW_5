@@ -2,10 +2,9 @@ name: Deploy
 
 on:
   workflow_run:
-    workflows: [ Django CI ]
+    workflows: [ cy.yml ]
     types: [ completed ]
     branches: [ develop, main]
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
 jobs:
 
