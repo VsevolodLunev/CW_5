@@ -1,11 +1,11 @@
 name: Deploy
 
 on:
-  workflow_dispatch:
   workflow_run:
-    workflows: [ Test ]
+    workflows: [ Django CI ]
     types: [ completed ]
-    branches: [ feature3 ]
+    branches: [ develop, main]
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
 jobs:
 
@@ -17,7 +17,7 @@ jobs:
       - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN' }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
