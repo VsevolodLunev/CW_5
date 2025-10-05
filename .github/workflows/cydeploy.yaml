@@ -34,6 +34,11 @@ jobs:
             type=semver,pattern={{major}}
             type=sha
       - uses: docker/setup-buildx-action@v2
+
+      - name: Get commit SHA tag
+        id: tag
+        run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
@@ -41,8 +46,10 @@ jobs:
           target: release_image
           file: Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -155,7 +162,7 @@ jobs:
             DB_NAME=${{ secrets.DB_NAME }}
             DB_USER=${{ secrets.DB_USER }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            APP_IMAGE=${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep
+            APP_IMAGE=${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep:${{ github.sha }}
             PGADMIN_EMAIL=admin@admin.com
             PGADMIN_PASSWORD=admin
             DEBUG=False
