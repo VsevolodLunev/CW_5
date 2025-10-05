@@ -4,7 +4,7 @@ on:
   workflow_run:
     types: [completed]
     workflows: ['Django CI']
-    branches: ['develop', 'main']
+    branches: ['develop', 'main', 'feature3']
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
 jobs:
