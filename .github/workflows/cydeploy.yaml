@@ -4,6 +4,7 @@ on:
   # workflow_run:
   #  workflows: ["Django CI"]
   #  types: [completed]
+
   push:
     branches: [ develop, feature3 ]
   pull_request:
