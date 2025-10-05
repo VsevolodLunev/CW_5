@@ -13,55 +13,80 @@
 Признак публичности — привычки можно публиковать в общий доступ, чтобы другие пользователи могли брать в пример чужие привычки.
 
 Установка
-клонировать репозиторий [[Github](https://github.com/VsevolodLunev/CW_5/tree/feature1)] #1
+клонировать репозиторий [[Github](https://github.com/VsevolodLunev/CW_5/tree/feature3)] #1
 
-Docker в проекте
+🛠 Технологии
+Python 3.13
+Django 5.2.5
+PostgreSQL
+Redis
+Celery
+Nginx
+Docker + Docker Compose
+GitHub Actions (CI/CD)
 
-Для быстрого старта:    
+🚀 Запуск проекта
+Локальная разработка (с Docker)
+Склонируйте репозиторий:
+git clone git@github.com:VsevolodLunev/CW_5.git
 
-Скачайте проект с удаленного репозитория
+Создайте файл .env в корне проекта (пример в .env.example):
 
-Настройте зависимости в файле .env
+ SECRET_KEY=<ваш-secret-key>
+ POSTGRES_DB=<имя-бд>
+ POSTGRES_USER=<пользователь-бд>
+ POSTGRES_PASSWORD=<пароль-бд>
+ # Остальные переменные...
 
-Введите в терминал команду: docker-compose up -d --build
+Запустите сервисы:
+docker-compose up -d
 
-1. Requirements
-For a successful deployment you will need:
-Remote server with Docker installed.
-Docker Hub account.
-Access to the repository on GitHub.
-2. Setting up a remote server
-System update:
-sudo apt update
-sudo apt upgrade
-3. Installing docker and docker-compose:
-sudo apt update && sudo apt install -y docker.io docker-compose
-sudo systemctl enable docker
-sudo usermod -aG docker $USER && newgrp docker
+Примените миграции:
+docker-compose exec web python manage.py migrate
 
-Firewall setup
-Activate firewall
-# check the firewall status
-sudo ufw status
+Создайте суперпользователя (опционально):
+docker-compose exec web python manage.py migrate
 
-# If the firewall is disabled, enable it
+Проект доступен по адресу:
+http://localhost:8000
+
+☁️ Деплой на сервер
+Требования к серверу
+Ubuntu 22.04 LTS
+
+Установка Docker и Docker Compose
+
+Инструкция по настройке сервера
+Установите Docker:
+sudo apt-get update && sudo apt-get install docker.io docker-compose-plugin
+
+Установите фаервол:
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 22/tcp
 sudo ufw enable
 
-Open the necessary ports
-# http port:
-sudo ufw allow 80/tcp
-	
-# https port:
-sudo ufw allow 443/tcp
-	
-# ssh port:
-sudo ufw allow 22/tcp
+Добавьте пользователя в группу docker:
+sudo usermod -aG docker $USER
 
-Cloning a repository:
-Fill in values. Here's an example:
-git clone https://github.com/VsevolodLunev/CW_5/tree/feature1 /var/www/habit-tracker
-cd /var/www/habit-tracker
-Fill in values. Here's an example:
-git clone https://github.com/VsevolodLunev/CW_5/tree/feature1 /var/www/habit-tracker
-cd /var/www/habit-tracker
- 
+Настройка CI/CD
+Добавьте secrets в GitHub (Settings → Secrets and variables → Actions):
+
+DOCKER_HUB_USERNAME — логин Docker Hub
+
+DOCKER_HUB_TOKEN — токен доступа
+
+SSH_KEY — приватный SSH-ключ для доступа к серверу
+
+SSH_USER — пользователь сервера (обычно root или ubuntu)
+
+SERVER_IP — IP сервера 
+
+DJANGO_SECRET_KEY - секретный ключ Django
+
+TELEGRAM_BOT_TOKEN - токен Telegram-бота
+
+Workflow автоматически выполнит:
+Тестирование и линтинг
+Сборку Docker-образов
+Деплой на сервер при пуше в main
