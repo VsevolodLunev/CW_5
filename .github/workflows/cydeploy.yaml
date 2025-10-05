@@ -70,7 +70,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "/Users/vsevolodlunev/PycharmProjects/CW_5/CourseWork_5/deploy/*"
+          source: "deploy/*"
           target: "sevalunev/con-to-dep"
           strip_components: 1
           script: |
