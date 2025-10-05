@@ -74,6 +74,29 @@ jobs:
           target: "con-to-dep"
           strip_components: 1
 
+      - name: Deploy configuration
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Остановить старый контейнер
+            docker stop todolist-app || true
+            docker rm todolist-app || true
+            docker rm con-to-dep-app || true
+            
+            mkdir -p sevalunev/con-to-dep
+             docker run -d \
+            --name con-to-dep-app \
+            -p 8000:8000 \
+            -e DB_NAME=${{ secrets.DB_NAME }} \
+            -e DB_USER=${{ secrets.DB_USER }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e DB_HOST=host.docker.internal \
+            -e DEBUG=False \
+            ${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep:latest
+
       - name: Run compose
         uses: appleboy/ssh-action@master
         with:
