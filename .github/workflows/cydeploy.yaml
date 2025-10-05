@@ -70,7 +70,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "/Users/vsevolodlunev/PycharmProjects/CW_5/CourseWork_5/deploy/**"
+          source: "/Users/vsevolodlunev/PycharmProjects/CW_5/CourseWork_5/deploy/*"
           target: "sevalunev/con-to-dep"
           strip_components: 1
           script: |
@@ -79,7 +79,6 @@ jobs:
             docker rm todolist-app || true
             docker rm con-to-dep-app || true
             
-            mkdir -p sevalunev/con-to-dep
              docker run -d \
             --name con-to-dep-app \
             -p 8000:8000 \

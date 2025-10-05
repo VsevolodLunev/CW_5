@@ -10,7 +10,7 @@ services:
     image: postgres:16-alpine
     restart: on-failure
     env_file:
-      - .env
+      - .env.ci
     expose:
       - '5432'
     volumes:
@@ -33,7 +33,7 @@ services:
     volumes:
       -  .:/app
     env_file:
-      - .env
+      - .env.ci
 
   celery:
     build: .
@@ -47,7 +47,7 @@ services:
       - db
       - app
     env_file:
-      - .env
+      - .env.ci
 
   celery-beat:
     build: .
@@ -61,7 +61,7 @@ services:
       - db
       - app
     env_file:
-      - .env
+      - .env.ci
 
 volumes:
   pg_data:
