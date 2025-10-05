@@ -9,10 +9,10 @@ services:
       POSTGRES_USER: vsevolodlunev
       POSTGRES_PASSWORD: 4455
     volumes:
-      - pg_data:/var/lib/postgresql/data
-      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      - pg_data:/custom/data/postgresql/data
+      - ./pg_hba.conf:/custom/data/postgresql/data/pg_hba.conf
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vsevolodlunev -d vsevolodlunev"]
+      test: ["CMD-SHELL", "pg_isready -U vsevolodlunev -d template1"]
       interval: 5s
       timeout: 3s
       retries: 10

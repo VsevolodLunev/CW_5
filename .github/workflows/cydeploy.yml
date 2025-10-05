@@ -2,18 +2,17 @@ name: Deploy on server
 
 on:
   # workflow_run:
-  #  workflows: [Django CI]
-  #  types:
-  #    - completed
+  #  workflows: ["Django CI"]
+  #  types: [completed]
   push:
-    branches: [ main, develop, feature3 ]
+    branches: [ develop, feature3 ]
   pull_request:
-    branches: [ main, develop, feature3 ]
+    branches: [ develop, feature3 ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v2
