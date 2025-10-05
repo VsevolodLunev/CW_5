@@ -81,9 +81,10 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd todolist
+            cd con-to-dep
             docker compose pull
             docker compose up -d
+
       - name: Cleanup
         if: always()
         uses: appleboy/ssh-action@master
