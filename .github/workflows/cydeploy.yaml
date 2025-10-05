@@ -1,44 +1,18 @@
 name: Deploy on Production
 
 on:
-  # workflow_run:
-  #  workflows: ["Django CI"]
-  #  types: [completed]
-
   push:
-    branches: [ develop, feature3 ]
-  pull_request:
     branches: [ develop, feature3 ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
-      - uses: docker/setup-buildx-action@v2
-
-      - name: Get commit SHA tag
-        id: tag
-        run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
-
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
@@ -46,9 +20,7 @@ jobs:
           target: release_image
           file: Dockerfile
           push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -56,20 +28,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Test SSH connection
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            echo "SSH connection successful!"
-            whoami
-            pwd
-
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
@@ -77,37 +35,47 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # Создать директорию
             mkdir -p sevalunev/con-to-dep
             cd sevalunev/con-to-dep
             
-            # Создать docker-compose.yml с реальными значениями
+            # Создать .env с простым тегом latest
+            cat > .env << EOF
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            APP_IMAGE=${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep:latest
+            PGADMIN_EMAIL=admin@admin.com
+            PGADMIN_PASSWORD=admin
+            DEBUG=False
+            EOF
+            
+            # Создать docker-compose.yml
             cat > docker-compose.yml << 'EOF'
             services:
               db:
-                 image: postgres:14
-                 environment:
-                   POSTGRES_DB: ${DB_NAME}
-                   POSTGRES_USER: ${DB_USER}
-                   POSTGRES_PASSWORD: ${DB_PASSWORD}
-                 volumes:
-                   - pg_data:/var/lib/postgresql/data  
-                 healthcheck:
-                   test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-                   interval: 5s
-                   timeout: 3s
-                   retries: 10
-            
+                image: postgres:14
+                environment:
+                  POSTGRES_DB: ${DB_NAME}
+                  POSTGRES_USER: ${DB_USER}
+                  POSTGRES_PASSWORD: ${DB_PASSWORD}
+                volumes:
+                  - pg_data:/var/lib/postgresql/data
+                healthcheck:
+                  test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+                  interval: 5s
+                  timeout: 3s
+                  retries: 10
+
               pgadmin:
                 image: dpage/pgadmin4
                 environment:
-                  PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
-                  PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+                  PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+                  PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
                 restart: always
                 depends_on:
                   db:
                     condition: service_healthy
-              
+
               redis:
                 image: redis:6.2-alpine
                 healthcheck:
@@ -117,7 +85,7 @@ jobs:
                   retries: 5
 
               backend:
-                image: ${APP_IMAGE}:latest  # исправлено на переменную
+                image: ${APP_IMAGE}
                 command: >
                   sh -c "python manage.py migrate && 
                          python manage.py collectstatic --no-input &&
@@ -134,7 +102,7 @@ jobs:
               web:
                 image: nginx:alpine
                 ports:
-                 - "80:80"
+                  - "80:80"
                 depends_on:
                   - backend
                 volumes:
@@ -142,7 +110,7 @@ jobs:
                   - django_static:/usr/share/nginx/html/static/
 
               celery-worker:
-                image: ${APP_IMAGE}:latest
+                image: ${APP_IMAGE}
                 env_file: .env
                 depends_on:
                   db:
@@ -156,31 +124,20 @@ jobs:
               django_static:
             EOF
             
-            # Создать .env с реальными значениями из секретов
-            cat > .env << EOF
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            APP_IMAGE=${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep:${{ github.sha }}
-            PGADMIN_EMAIL=admin@admin.com
-            PGADMIN_PASSWORD=admin
-            DEBUG=False
-            EOF
-    
-            # Создать базовую nginx конфигурацию
+            # Создать nginx конфиг
             mkdir -p nginx
             cat > nginx/default.conf << 'EOF'
             server {
-            listen 80;
-            server_name _;
-            location / {
-            proxy_pass http://backend:8000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            }
-            location /static/ {
-            alias /usr/share/nginx/html/static/;
-            }
+                listen 80;
+                server_name _;
+                location / {
+                    proxy_pass http://backend:8000;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                }
+                location /static/ {
+                    alias /usr/share/nginx/html/static/;
+                }
             }
             EOF
 
@@ -193,7 +150,8 @@ jobs:
           script: |
             cd sevalunev/con-to-dep
             docker compose pull
-            docker compose up -d
+            docker compose down || true
+            docker compose up -d --remove-orphans
 
       - name: Cleanup
         if: always()
@@ -203,6 +161,4 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker system prune -a -f
-
-
+            docker system prune -f  # безопасная очистка
