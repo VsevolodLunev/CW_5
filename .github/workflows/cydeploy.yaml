@@ -18,13 +18,13 @@ jobs:
       - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          token: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/todolist
+            ${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -49,18 +49,32 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Test SSH connection
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "SSH connection successful!"
+            whoami
+            pwd
+
       - name: Copy on Server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose2deploy.yaml"
-          target: "todolist"
+          source: ".env,docker-compose.yml,nginx.conf"
+          target: "con-to-dep"
           strip_components: 1
+
       - name: Run compose
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@maste
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}

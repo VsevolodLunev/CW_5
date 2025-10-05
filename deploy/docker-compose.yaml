@@ -2,12 +2,17 @@ version: '3'
 
 services:
   db:
-    image: postgres:13
+    image: postgres:14
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pg_data:/custom/data/postgresql/data
       - ./pg_hba.conf:/custom/data/postgresql/data/pg_hba.conf
+      - ./init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vsevolodlunev -d template1"]
+      test: pg_isready -U ${DB_USER} -d ${DB_NAME}
       interval: 5s
       timeout: 3s
       retries: 10
@@ -29,19 +34,16 @@ services:
       retries: 10
 
   backend:
-    image: backend-1
-    command: bash -c "python3 manage.py migrate && gunicorn config.wsgi --access-logfile - --error-logfile -  --reload -b 0.0.0.0:8000"
+    image: ${APP_IMAGE}
+    command:
+      sh -c "python manage.py migrate && python manage.py collectstatic --no-input &&
+      gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 3"
     env_file: .env
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-
-  static_collector:
-    build: .
-    command: bash -c 'python3 manage.py collectstatic --no-input'
-    env_file: .env
     volumes:
       - django_static:/app/static/
 
@@ -49,22 +51,21 @@ services:
     image: nginx:1.19.3
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
-      backend:
-        condition: service_started
-      static_collector:
-        condition: service_completed_successfully
+      - backend
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
       - django_static:/usr/share/nginx/html/static/
+      - ./ssl:/etc/nginx/ssl
 
   celery-worker:
-      image:
-      env_file: .env
-      depends_on:
-        db:
-          condition: service_healthy
-      command: celery -A config worker -l INFO
+    image: ${APP_IMAGE}
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: celery -A config worker -l INFO
 
 volumes:
   pg_data:
