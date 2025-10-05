@@ -1,7 +1,6 @@
 name: Deploy on Production
 
 on:
-
   # workflow_run:
   #  workflows: ["Django CI"]
   #  types: [completed]
@@ -56,7 +55,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_KEY }}
           source: "docker-compose2deploy.yaml"
           target: "todolist"
           strip_components: 1
@@ -65,7 +64,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             cd todolist
             docker compose pull
@@ -76,6 +75,6 @@ jobs:
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             docker system prune -a -f
