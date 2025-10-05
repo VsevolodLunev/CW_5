@@ -3,11 +3,6 @@ version: '3'
 services:
   db:
     image: postgres:13
-    environment:
-      POSTGRES_HOST: db
-      POSTGRES_DB: template1
-      POSTGRES_USER: vsevolodlunev
-      POSTGRES_PASSWORD: 4455
     volumes:
       - pg_data:/custom/data/postgresql/data
       - ./pg_hba.conf:/custom/data/postgresql/data/pg_hba.conf
@@ -24,8 +19,6 @@ services:
     depends_on:
       - db
     env_file: ".env"
-    ports:
-      - "5050:80"
 
   redis:
     image: redis:6.2.4-alpine
@@ -72,7 +65,6 @@ services:
         db:
           condition: service_healthy
       command: celery -A config worker -l INFO
-
 
 volumes:
   pg_data:
