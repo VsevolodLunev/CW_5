@@ -70,8 +70,8 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "deploy/**"
-          target: "con-to-dep"
+          source: "/Users/vsevolodlunev/PycharmProjects/CW_5/CourseWork_5/deploy/**"
+          target: "sevalunev/con-to-dep"
           strip_components: 1
           script: |
             # Остановить старый контейнер

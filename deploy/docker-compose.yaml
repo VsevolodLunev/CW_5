@@ -9,12 +9,7 @@ services:
       - pg_data:/custom/data/postgresql/data
       - ./pg_hba.conf:/custom/data/postgresql/data/pg_hba.conf
       - ./init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: pg_isready -U ${DB_USER} -d ${DB_NAME}
-      interval: 5s
-      timeout: 3s
-      retries: 10
-
+      -
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
@@ -32,18 +27,16 @@ services:
       retries: 10
 
   backend:
-    image: ${APP_IMAGE}
-    command:
+    image: ${{ secrets.DOCKER_HUB_USERNAME }}/con-to-dep:latest
+    command: >
       sh -c "python manage.py migrate && python manage.py collectstatic --no-input &&
       gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 3"
     env_file: .env
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    volumes:
-      - django_static:/app/static/
+      - db
+      - redis
+    ports:
+      - "8000:8000"
 
   web:
     image: nginx:1.19.3
