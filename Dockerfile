@@ -1,5 +1,5 @@
 # Используем официальный slim-образ Python 3.13
-FROM python:3.13-slim
+FROM python:3.13-slim as base
 
 # Устанавливаем рабочую директорию в контейнере
 WORKDIR /app
@@ -27,6 +27,11 @@ RUN poetry install --no-root
 
 # Копируем исходный код приложения в контейнер
 COPY . .
+
+FROM base as release_image
+
+# Копируем все файлы из предыдущей стадии
+COPY --from=base /app /app
 
 # Создаем директорию для медиафайлов
 RUN mkdir -p /app/media
