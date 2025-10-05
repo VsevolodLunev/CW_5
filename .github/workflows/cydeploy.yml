@@ -2,8 +2,12 @@ name: Deploy on server
 
 on:
   workflow_run:
-    workflows: [Django CI, cy]
+    workflows: [Django CI]
     types: [completed]
+  push:
+    branches: [ main, develop, feature3 ]
+  pull_request:
+    branches: [ main, develop, feature3 ]
   workflow_dispatch:
     inputs:
       logLevel:
