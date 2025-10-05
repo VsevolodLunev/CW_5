@@ -1,10 +1,9 @@
-name: Deploy
+name: Deploy on server
 
 on:
   workflow_run:
-    workflows: [Django CI]
+    workflows: [Django CI, cy]
     types: [completed]
-    sdvwbeqweb
   workflow_dispatch:
     inputs:
       logLevel:
