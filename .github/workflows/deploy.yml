@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: [Django CI]
     types: [completed]
-    branches: ['develop', 'main', 'feature3']
+    sdvwbeqweb
   workflow_dispatch:
     inputs:
       logLevel:
