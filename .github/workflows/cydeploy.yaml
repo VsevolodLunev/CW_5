@@ -73,13 +73,6 @@ jobs:
           source: "deploy/**"
           target: "con-to-dep"
           strip_components: 1
-
-      - name: Deploy configuration
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
           script: |
             # Остановить старый контейнер
             docker stop todolist-app || true
