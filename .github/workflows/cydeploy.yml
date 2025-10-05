@@ -1,6 +1,7 @@
 name: Deploy on Production
 
 on:
+
   # workflow_run:
   #  workflows: ["Django CI"]
   #  types: [completed]
