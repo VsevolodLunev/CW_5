@@ -82,9 +82,9 @@ SSH_USER — пользователь сервера (обычно root или u
 
 SERVER_IP — IP сервера 
 
-DJANGO_SECRET_KEY - секретный ключ Django
+SECRET_KEY - секретный ключ Django
 
-TELEGRAM_BOT_TOKEN - токен Telegram-бота
+TELEGRAM_TOKEN - токен Telegram-бота
 
 Workflow автоматически выполнит:
 Тестирование и линтинг

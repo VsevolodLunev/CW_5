@@ -2,9 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [ main, develop, feature3 ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop, feature3 ]
+    branches: [ main, develop ]
 
 env:
   # Основные настройки
