@@ -1,5 +1,4 @@
-name: Deploy on server
-
+name: Django CI
 on:
   push:
     branches: [ main, develop ]
